@@ -1,37 +1,52 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/fatih/color"
 )
 
-func url(base string) string {
+// List of supported currencies
+var coins = []string{"BTC", "ETH", "XRP"}
+
+// CryptoCurrency for api resp
+type CryptoCurrency struct {
+	Price string `json:"price"`
+}
+
+func getCoinURL(base string) string {
 	return "https://chasing-coins.com/api/v1/std/coin/" + base
 }
 
 func printCurrenciesRates() {
-	coins := []string{"BTC", "ETH", "XRP"}
-
 	for _, coin := range coins {
-		response, err := http.Get(url(coin))
+
+		url := getCoinURL(coin)
+
+		res, err := http.Get(url)
 
 		if err != nil {
 			fmt.Printf("%s", err)
 			os.Exit(1)
-		} else {
-			defer response.Body.Close()
-			contents, err := ioutil.ReadAll(response.Body)
-			if err != nil {
-				fmt.Printf("%s", err)
-				os.Exit(1)
-			}
-			Print(string(contents))
-			//color.Green(string(contents))
 		}
 
+		body, err := ioutil.ReadAll(res.Body)
+
+		if err != nil {
+			fmt.Printf("%s", err)
+			os.Exit(1)
+		}
+
+		crypt := new(CryptoCurrency)
+		json.Unmarshal([]byte(body), &crypt)
+
+		boldYellow := color.New(color.FgYellow).Add(color.Bold)
+		boldYellow.Print(coin + " ")
+		color.Green(crypt.Price)
 	}
 }
 
