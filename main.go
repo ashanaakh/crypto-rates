@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/fatih/color"
 )
@@ -13,9 +14,16 @@ import (
 // List of supported currencies
 var coins = []string{"BTC", "ETH", "XRP"}
 
+// cryptoCurrencyChange
+type cryptoCurrencyChange struct {
+	Hour string `json:"hour"`
+	Day  string `json:"day"`
+}
+
 // CryptoCurrency for api resp
-type CryptoCurrency struct {
-	Price string `json:"price"`
+type cryptoCurrency struct {
+	Price  string               `json:"price"`
+	Change cryptoCurrencyChange `json:"change"`
 }
 
 func getCoinURL(base string) string {
@@ -41,12 +49,20 @@ func printCurrenciesRates() {
 			os.Exit(1)
 		}
 
-		crypt := new(CryptoCurrency)
+		crypt := new(cryptoCurrency)
 		json.Unmarshal([]byte(body), &crypt)
 
 		boldYellow := color.New(color.FgYellow).Add(color.Bold)
 		boldYellow.Print(coin + " ")
-		color.Green(crypt.Price)
+
+		hour, _ := strconv.ParseFloat(crypt.Change.Hour, 64)
+
+		if hour > 0 {
+			color.Green(crypt.Price)
+		} else {
+			color.Red(crypt.Price)
+		}
+
 	}
 }
 
