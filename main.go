@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"http"
 	"io/ioutil"
-	"ioutil"
+	"net/http"
 	"os"
 )
 
@@ -29,7 +28,8 @@ func printCurrenciesRates() {
 				fmt.Printf("%s", err)
 				os.Exit(1)
 			}
-			color.Green(string(contents))
+			Print(string(contents))
+			//color.Green(string(contents))
 		}
 
 	}
