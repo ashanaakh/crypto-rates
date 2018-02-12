@@ -9,8 +9,8 @@ notifications:
   email: false
 
 before_install:
-- sudo apt-get -qq update
-- sudo apt-get install -y golang-glide
+- sudo add-apt-repository ppa:masterminds/glide && sudo apt-get -qq update
+- sudo apt-get install -y glide
 
 before_script:
 - go get github.com/golang/lint/golint

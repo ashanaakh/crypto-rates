@@ -1,4 +1,12 @@
+[travis]: https://travis-ci.org/ashanaakh/crypto-rates
+[goreport]: https://goreportcard.com/report/github.com/ashanaakh/crypto-rates
+[license]: ./LICENSE
+
 # Cryptocurrencies rates
+[![Build Status](https://travis-ci.org/ashanaakh/crypto-rates.svg?branch=master)][travis]
+[![Go Report Card](https://goreportcard.com/badge/github.com/ashanaakh/cryptio-api)][goreport]
+
+
 > Command line interface for getting latest crypto rates
 
 ## Overview
@@ -51,9 +59,9 @@ XRP 1.06239
 Contributions are welcome
 
 TODO:
-- Support for `BCH`,`LTC`, `DASH`, `NEO`, `ETC`, `IOT`, `EOS`
-- Opportunity to specify currencies
-- Opportunity to choose fiat
+- [ ] Support for `BCH`,`LTC`, `DASH`, `NEO`, `ETC`, `IOT`, `EOS`
+- [ ] Opportunity to specify currencies
+- [ ] Opportunity to choose fiat
 
 ## License
-Project released under the terms of the MIT [license](LICENSE).
+Project released under the terms of the MIT [license][license].
