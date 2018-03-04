@@ -6,8 +6,8 @@
 
 package main
 
-import "github.com/ashanaakh/crypto-rates/command"
+import "github.com/ashanaakh/crypto-rates/cmd"
 
 func main() {
-	command.Run()
+	cmd.Run()
 }
