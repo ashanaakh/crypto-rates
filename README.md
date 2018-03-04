@@ -62,6 +62,7 @@ TODO:
 - [ ] Support for `BCH`,`LTC`, `DASH`, `NEO`, `ETC`, `IOT`, `EOS`
 - [ ] Ability to specify currencies
 - [ ] Ability to choose fiat
+- [ ] Add concurrency
 
 ## License
 Project released under the terms of the MIT [license][license].

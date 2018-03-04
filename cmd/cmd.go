@@ -1,9 +1,10 @@
 /*
  * Copyright (C) 2018 Ali Shanaakh, ashanaakh@gmail.com
- * This software may be modified and distributed under the terms
+ //* This software may be modified and distributed under the terms
  * of the MIT license. See the LICENSE file for details.
  */
 
+// Package cmd implements methods for getting latest rates for crypto-currencies 9(coins)
 package cmd
 
 import (
@@ -18,24 +19,51 @@ import (
 	"github.com/fatih/color"
 )
 
+// cryptoCurrencyConvert pareses request json, when fiat isn't USD
+type cryptoCurrencyConvert struct {
+  Currency string `json:"currency"`
+  Result interface{}   `json:"result"`
+  Coin string     `json:"coin"`
+}
+
 // cryptoCurrencyChange
 type cryptoCurrencyChange struct {
 	Hour string `json:"hour"`
 	Day  string `json:"day"`
 }
 
-// CryptoCurrency for api resp
+// cryptoCurrency for api resp
 type cryptoCurrency struct {
 	Price  string               `json:"price"`
 	Change cryptoCurrencyChange `json:"change"`
 }
 
-var coins = []string{"BTC", "ETH", "XRP", "DASH", "ION"}
+// fiats [Array<String>]
+//
+// Description: List of support fiats.
+var fiats = []string{ "USD", "EUR", "GBP", "AUD", "CAD",
+                      "CNY", "EGP", "HKD", "INR", "ILS",
+                      "JPY", "MXP", "NZD", "PKR", "PHP",
+                      "RUR", "SGD", "ZAR", "KRW", "THB" }
 
-func getCoinURL(currency string) string {
-	return "https://chasing-coins.com/api/v1/std/coin/" + currency
+// coins [Array<String>]
+//
+// Description: List of support coins.
+//
+// Notes: Add any coin from list: https://chasing-coins.com/coins.
+var coins = []string{ "BTC", "ETH", "XRP", "DASH", "ION",
+                      "BCH", "LTC", "NEO", "ETC", "EOS" }
+
+// getCoinURL returns URL of REST JSON API of specified currency rate
+func getCoinURL(coin string) string {
+	return "https://chasing-coins.com/api/v1/std/coin/" + coin
 }
 
+func getCoinConvertURL(coin, fiat string) string {
+  return "https://chasing-coins.com/api/v1/convert/" + coin + "/" + fiat
+}
+
+// handleError handles error
 func handleError(err error) {
 	if err != nil {
 		fmt.Printf("%s", err)
@@ -43,49 +71,63 @@ func handleError(err error) {
 	}
 }
 
-// func getCoinColor(percent int) (cf func(string, ...interface{})) {
-// 	if percent > 0 {
-// 		cf = color.Green
-// 	} else {
-// 		cf = color.Red
-// 	}
-// 	return cf
-// }
+// showCoinRate prints rate of specified coin
+func showCoinRate(coin, fiat string) {
+  url := getCoinURL(coin)
 
-func printCurrenciesRates() {
-	for _, coin := range coins {
-		url := getCoinURL(coin)
-		res, err := http.Get(url)
+  res, err := http.Get(url)
 
-		handleError(err)
+  handleError(err)
 
-		body, err := ioutil.ReadAll(res.Body)
+  body, err := ioutil.ReadAll(res.Body)
 
-		handleError(err)
+  handleError(err)
 
-		crypt := new(cryptoCurrency)
-		json.Unmarshal([]byte(body), &crypt)
+  crypt := new(cryptoCurrency)
+  json.Unmarshal([]byte(body), &crypt)
 
-		boldYellow := color.New(color.FgYellow).Add(color.Bold)
-		boldYellow.Print(coin + " ")
+  boldYellow := color.New(color.FgYellow).Add(color.Bold)
+  boldYellow.Print(coin + " ")
 
-		hour, _ := strconv.ParseFloat(crypt.Change.Hour, 64)
+  hour, _ := strconv.ParseFloat(crypt.Change.Hour, 64)
 
-		if hour > 0 {
-			color.Green(crypt.Price)
-		} else {
-			color.Red(crypt.Price)
-		}
+  if fiat != "USD" {
+    convertURL := getCoinConvertURL(coin, fiat)
+    convertRes, err := http.Get(convertURL)
+
+    handleError(err)
+
+    convertBody, err := ioutil.ReadAll(convertRes.Body)
+
+    handleError(err)
+
+    coinConvert := new(cryptoCurrencyConvert)
+    json.Unmarshal([]byte(convertBody), &coinConvert)
+
+    crypt.Price = fmt.Sprint(coinConvert.Result)
+  }
+
+	if hour > 0 {
+		color.Green(crypt.Price)
+	} else {
+		color.Red(crypt.Price)
 	}
 }
 
-// Run - main function in cmd package, that execute algorithm
+// showCoinRate prints rates of all cryoto-currencies in coins array
+func showCoinsRates(fiat string) {
+
+	for _, coin := range coins {
+		showCoinRate(coin, fiat)
+	}
+}
+
+// Run executes algorithm
 func Run() {
 	fiat := flag.String("fiat", "USD", "Fiat currency")
+  flag.Parse()
 
-	flag.Parse()
+  fmt.Println("fiat: ", *fiat)
 
-	fmt.Println("fiat: ", *fiat)
-
-	printCurrenciesRates()
+  showCoinsRates(*fiat)
 }
