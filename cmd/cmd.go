@@ -14,9 +14,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strconv"
-
-	"github.com/fatih/color"
+  "strconv"
+  "github.com/fatih/color"
 )
 
 // cryptoCurrencyConvert pareses request json, when fiat isn't USD
@@ -72,7 +71,7 @@ func handleError(err error) {
 }
 
 // showCoinRate prints rate of specified coin
-func showCoinRate(coin, fiat string) {
+func showCoinRate(coin, fiat string, msg chan string) {
   url := getCoinURL(coin)
 
   res, err := http.Get(url)
@@ -85,9 +84,6 @@ func showCoinRate(coin, fiat string) {
 
   crypt := new(cryptoCurrency)
   json.Unmarshal([]byte(body), &crypt)
-
-  boldYellow := color.New(color.FgYellow).Add(color.Bold)
-  boldYellow.Print(coin + " ")
 
   hour, _ := strconv.ParseFloat(crypt.Change.Hour, 64)
 
@@ -107,19 +103,27 @@ func showCoinRate(coin, fiat string) {
     crypt.Price = fmt.Sprint(coinConvert.Result)
   }
 
-	if hour > 0 {
-		color.Green(crypt.Price)
-	} else {
-		color.Red(crypt.Price)
-	}
+  if hour > 0 {
+    color.Green(coin + " " + crypt.Price)
+  } else {
+    color.Red(coin + " " + crypt.Price)
+  }
+
+  msg <- ""
 }
 
 // showCoinRate prints rates of all cryoto-currencies in coins array
 func showCoinsRates(fiat string) {
 
+  result := make(chan string, len(coins))
+
 	for _, coin := range coins {
-		showCoinRate(coin, fiat)
+		go showCoinRate(coin, fiat, result)
 	}
+
+	for range coins {
+    _ = <-result
+  }
 }
 
 // Run executes algorithm
