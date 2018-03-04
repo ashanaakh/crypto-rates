@@ -6,19 +6,18 @@
 [![Build Status](https://travis-ci.org/ashanaakh/crypto-rates.svg?branch=master)][travis]
 [![Go Report Card](https://goreportcard.com/badge/github.com/ashanaakh/cryptio-api)][goreport]
 
-
-> Command line interface for getting latest crypto rates
+> Binary for getting coins rates
 
 ## Overview
 
-Thanks [chasing coins](https://chasing-coins.com) for providing awesome API for latest cryptocurrencies rates.
+Thanks [chasing coins](https://chasing-coins.com) for providing awesome API for crypto-currencies rates.
 
 ## Installation
 
 **Prerequisites**
 
-1. Glide
-2. `$GOPATH/bin` directory in the `PATH` environment variable
+1. Glide;
+2. `$GOPATH/bin` directory in the `PATH` environment variable;
 
 Downloads source code
 
@@ -53,16 +52,27 @@ BTC 8387.85
 ETH 842.728
 XRP 1.06239
 ```
+Lines can be red or green.
+When line is green it means that at last hour
+coin rate increased, otherwice coin rate decreased.
+
+
+You have ability to choose fiat, if you want to specify fiat just use this syntax
+
+```
+$ crypto-rates -fiat=INR
+```
 
 ## Development
 
 Contributions are welcome
 
 TODO:
-- [ ] Support for `BCH`,`LTC`, `DASH`, `NEO`, `ETC`, `IOT`, `EOS`
-- [ ] Ability to specify currencies
-- [ ] Ability to choose fiat
-- [ ] Add concurrency
+- [x] Support for `BCH`,`LTC`, `DASH`, `NEO`, `ETC`, `IOT`, `EOS`
+- [x] Ability to specify currencies
+- [x] Ability to choose fiat
+- [x] Add concurrency
+- [ ] Add some wiki
 
 ## License
 Project released under the terms of the MIT [license][license].

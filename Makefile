@@ -19,7 +19,7 @@ install:
 .PHONY: check
 check: lint vet
 
-.PHONY: list
+.PHONY: lint
 lint:
 	@echo "Linting your go code..."
 	@golint -set_exit_status $(go list ./...)
@@ -29,10 +29,11 @@ vet:
 	@echo "Vet in progress..."
 	@go vet ./...
 
-.PHONY: list
-list:
-	@go list ./...
-
 .PHONY: deps
 deps:
 	@go get ./...
+
+.PHONY: test
+test:
+	@go test -v ./...
+

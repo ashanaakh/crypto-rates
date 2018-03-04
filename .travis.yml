@@ -27,6 +27,7 @@ before_script:
 - glide up
 
 script:
+- go test -v -race ./...
 - go run main.go
 - go vet ./...
 - golint -set_exit_status $(go list ./...)
