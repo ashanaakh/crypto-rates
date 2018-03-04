@@ -1,16 +1,18 @@
 language: go
 
 go:
-- 1.9
-- master
+- "1.10"
 
 # Don't email me the results of the test runs.
 notifications:
   email: false
 
 before_install:
-- sudo add-apt-repository ppa:masterminds/glide && sudo apt-get -qq update
-- sudo apt-get install -y glide
+- go get -v github.com/Masterminds/glide
+- cd $GOPATH/src/github.com/Masterminds/glide
+- git checkout v0.13.1
+- go install && cd -
+- glide install
 
 before_script:
 - go get github.com/golang/lint/golint
