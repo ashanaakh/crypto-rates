@@ -59,7 +59,7 @@ type CryptoCurrency struct {
 }
 
 // Default fiat of third party REST JSON API
-var deaultFiat = "USD"
+var defaultFiat = "USD"
 
 // Description: List of support fiats.
 var fiats = []string{"USD", "EUR", "GBP", "AUD", "CAD",
@@ -136,7 +136,7 @@ func GetCoinRate(coinName, fiat string, msg chan string) {
 	coin := new(CryptoCurrency)
 	json.Unmarshal([]byte(body), &coin)
 
-	if fiat != deaultFiat {
+	if fiat != defaultFiat {
 		convertURL, _ := GetCoinConvertURL(coinName, fiat)
 		convertRes, err := http.Get(convertURL)
 
@@ -157,7 +157,7 @@ func GetCoinRate(coinName, fiat string, msg chan string) {
 
 // Run executes algorithm
 func Run() {
-	fiat := flag.String("fiat", deaultFiat, "Fiat currency")
+	fiat := flag.String("fiat", defaultFiat, "Fiat currency")
 	flag.Parse()
 
 	var output string
