@@ -8,54 +8,57 @@
 package cmd
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strings"
-
-	"errors"
-	"github.com/fatih/color"
-	"strconv"
+  "encoding/json"
+  "flag"
+  "fmt"
+  "io/ioutil"
+  "net/http"
+  "os"
+  "errors"
+  "github.com/fatih/color"
+  "strconv"
+  "sync"
+  "sort"
 )
 
 // Contains checks if item exist in array
 func Contains(array []string, x string) bool {
-	for _, elem := range array {
-		if elem == x {
-			return true
-		}
-	}
-	return false
+  for _, elem := range array {
+    if elem == x {
+      return true
+    }
+  }
+
+  return false
 }
 
 // handleError handles error
 func handleError(err error) {
-	if err != nil {
-		fmt.Printf("%s", err)
-		os.Exit(1)
-	}
+  if err != nil {
+    fmt.Printf("%s", err)
+    os.Exit(1)
+  }
 }
 
 // CoinConvert pareses json response from third party REST JSON API
 type CoinConvert struct {
-	Currency string      `json:"currency"`
-	Result   interface{} `json:"result"`
-	Coin     string      `json:"coin"`
+  Currency string      `json:"currency"`
+  Result   interface{} `json:"result"`
+  Coin     string      `json:"coin"`
 }
 
 // CoinChange parses json response from third party REST JSON API
 type CoinChange struct {
-	Hour string `json:"hour"`
-	Day  string `json:"day"`
+  Hour string `json:"hour"`
+  Day  string `json:"day"`
 }
 
 // CryptoCurrency for third party REST JSON API
 type CryptoCurrency struct {
-	Price  string     `json:"price"`
-	Change CoinChange `json:"change"`
+  Name   string
+  Price  string     `json:"price"`
+  Change CoinChange `json:"change"`
+  sync.Mutex
 }
 
 // Default fiat of third party REST JSON API
@@ -63,114 +66,125 @@ var defaultFiat = "USD"
 
 // Description: List of support fiats.
 var fiats = []string{"USD", "EUR", "GBP", "AUD", "CAD",
-	"CNY", "EGP", "HKD", "INR", "ILS",
-	"JPY", "MXP", "NZD", "PKR", "PHP",
-	"RUR", "SGD", "ZAR", "KRW", "THB"}
+  "CNY", "EGP", "HKD", "INR", "ILS",
+  "JPY", "MXP", "NZD", "PKR", "PHP",
+  "RUR", "SGD", "ZAR", "KRW", "THB"}
 
 // Description: List of support coins.
 // Notes: Add any coin from list: https://chasing-coins.com/coins.
 var coins = []string{"BTC", "ETH", "XRP", "DASH", "ION",
-	"BCH", "LTC", "NEO", "ETC", "EOS"}
+  "BCH", "LTC", "NEO", "ETC", "EOS"}
 
 // GetCoinURL returns REST JSON API URL of specified currency rate
 func GetCoinURL(coin string) (string, error) {
-	if Contains(coins, coin) {
-		return "https://chasing-coins.com/api/v1/std/coin/" + coin, nil
-	}
+  if Contains(coins, coin) {
+    return "https://chasing-coins.com/api/v1/std/coin/" + coin, nil
+  }
 
-	return "", errors.New("invalid coin")
+  return "", errors.New("invalid coin")
 }
 
 // GetCoinConvertURL returns REST JSON API URL
-// of convertion specified coin into fiat
+// of convertation specified coin into fiat
 func GetCoinConvertURL(coin, fiat string) (string, error) {
-	coinOk := Contains(coins, coin)
-	fiatOk := Contains(fiats, fiat)
+  coinOk := Contains(coins, coin)
+  fiatOk := Contains(fiats, fiat)
 
-	if coinOk && fiatOk {
-		return "https://chasing-coins.com/api/v1/convert/" + coin + "/" + fiat, nil
-	} else if fiatOk {
-		return "", errors.New("invalid coin")
-	}
+  if coinOk && fiatOk {
+    return "https://chasing-coins.com/api/v1/convert/" + coin + "/" + fiat, nil
+  } else if fiatOk {
+    return "", errors.New("invalid coin")
+  }
 
-	return "", errors.New("invalid fiat")
+  return "", errors.New("invalid fiat")
 }
 
 // PrettyShow prints rates coins color, depending on their rates
-func PrettyShow(output, fiat string) {
-	lines := strings.Split(output, "\n")
+func PrettyShow(result []CryptoCurrency, fiat string) {
+  color.Cyan("Fiat: " + fiat)
 
-	color.Cyan("Fiat: " + fiat)
+  sort.Slice(result, func(i, j int) bool {
+    first, err := strconv.ParseFloat(result[i].Price, 64)
+    second, err := strconv.ParseFloat(result[j].Price, 64)
 
-	for _, line := range lines {
-		parts := strings.Split(line, " ")
+    handleError(err)
 
-		if len(parts) < 3 {
-			continue
-		}
+    return first > second
+  })
 
-		coin := parts[0]
-		price := parts[1]
-		hour, _ := strconv.ParseFloat(parts[2], 64)
+  for _, coin := range result {
+    hour, err := strconv.ParseFloat(coin.Price, 64)
 
-		if hour > 0 {
-			color.Green(coin + " " + price)
-		} else {
-			color.Red(coin + " " + price)
-		}
-	}
+    handleError(err)
+
+    fmt.Print(coin.Name + "\t")
+
+    if hour > 0 {
+      color.Green(coin.Price)
+    } else {
+      color.Red(coin.Price)
+    }
+  }
 }
 
 // GetCoinRate returns rate of specified coin
-func GetCoinRate(coinName, fiat string, msg chan string) {
-	url, _ := GetCoinURL(coinName)
+func GetCoinRate(code, fiat string, result *[]CryptoCurrency, wg *sync.WaitGroup) {
+  url, _ := GetCoinURL(code)
 
-	res, err := http.Get(url)
+  res, err := http.Get(url)
 
-	handleError(err)
+  handleError(err)
 
-	body, err := ioutil.ReadAll(res.Body)
+  body, err := ioutil.ReadAll(res.Body)
 
-	handleError(err)
+  handleError(err)
 
-	coin := new(CryptoCurrency)
-	json.Unmarshal([]byte(body), &coin)
+  coin := new(CryptoCurrency)
+  coin.Name = code
 
-	if fiat != defaultFiat {
-		convertURL, _ := GetCoinConvertURL(coinName, fiat)
-		convertRes, err := http.Get(convertURL)
+  json.Unmarshal([]byte(body), &coin)
 
-		handleError(err)
+  if fiat != defaultFiat {
+    convertURL, err := GetCoinConvertURL(code, fiat)
 
-		convertBody, err := ioutil.ReadAll(convertRes.Body)
+    handleError(err)
 
-		handleError(err)
+    convertRes, err := http.Get(convertURL)
 
-		coinConvert := new(CoinConvert)
-		json.Unmarshal([]byte(convertBody), &coinConvert)
+    handleError(err)
 
-		coin.Price = fmt.Sprint(coinConvert.Result)
-	}
+    convertBody, err := ioutil.ReadAll(convertRes.Body)
 
-	msg <- coinName + " " + coin.Price + " " + coin.Change.Hour + "\n"
+    handleError(err)
+
+    coinConvert := new(CoinConvert)
+    json.Unmarshal([]byte(convertBody), &coinConvert)
+
+    coin.Price = fmt.Sprint(coinConvert.Result)
+  }
+
+  *result = append(*result, *coin)
+
+  wg.Done()
 }
 
 // Run executes algorithm
 func Run() {
-	fiat := flag.String("fiat", defaultFiat, "Fiat currency")
-	flag.Parse()
+  fiat := flag.String("fiat", defaultFiat, "Fiat currency")
+  flag.Parse()
 
-	var output string
+  //var output string
+  result := make([]CryptoCurrency, 0)
 
-	ch := make(chan string, len(coins))
+  var wg sync.WaitGroup
 
-	for _, coin := range coins {
-		go GetCoinRate(coin, *fiat, ch)
-	}
+  wg.Add(len(coins))
 
-	for range coins {
-		output += <-ch
-	}
+  for _, coin := range coins {
+    go GetCoinRate(coin, *fiat, &result, &wg)
+  }
 
-	PrettyShow(output, *fiat)
+  wg.Wait()
+
+  PrettyShow(result, *fiat)
 }
