@@ -2,7 +2,7 @@
 [goreport]: https://goreportcard.com/report/github.com/ashanaakh/crypto-rates
 [license]: ./LICENSE
 
-# Cryptocurrencies rates
+# Crypto rates
 [![Build Status](https://travis-ci.org/ashanaakh/crypto-rates.svg?branch=master)][travis]
 [![Go Report Card](https://goreportcard.com/badge/github.com/ashanaakh/cryptio-api)][goreport]
 
@@ -16,8 +16,8 @@ Thanks [chasing coins](https://chasing-coins.com) for providing awesome API for 
 
 **Prerequisites**
 
-1. Glide;
-2. `$GOPATH/bin` directory in the `PATH` environment variable;
+- Glide.
+- `$GOPATH/bin` directory in the `PATH` environment variable.
 
 Downloads source code
 
@@ -48,16 +48,24 @@ $ crypto-rates
 *Example output:*
 
 ```
-BTC 8387.85
-ETH 842.728
-XRP 1.06239
+Fiat: USD
+BTC 9459.94
+BCH 1444.9
+ETH 693.658
+DASH 499.435
+LTC 154.333
+NEO 80.3039
+EOS 22.8904
+ETC 21.7837
+ION 2.91656
+XRP 0.885313
 ```
 Lines can be red or green.
 When line is green it means that at last hour
 coin rate increased, otherwice coin rate decreased.
 
 
-You have ability to choose fiat, if you want to specify fiat just use this syntax
+You have ability to choose fiat, if you want to specify fiat just use this syntax.
 
 ```
 $ crypto-rates -fiat=INR
@@ -65,14 +73,7 @@ $ crypto-rates -fiat=INR
 
 ## Development
 
-Contributions are welcome
-
-TODO:
-- [x] Support for `BCH`,`LTC`, `DASH`, `NEO`, `ETC`, `IOT`, `EOS`
-- [x] Ability to specify currencies
-- [x] Ability to choose fiat
-- [x] Add concurrency
-- [ ] Add some wiki
+Contributions are welcome.
 
 ## License
 Project released under the terms of the MIT [license][license].

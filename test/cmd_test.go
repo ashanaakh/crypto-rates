@@ -2,8 +2,8 @@ package main
 
 import (
   "github.com/ashanaakh/crypto-rates/cmd"
-  "strings"
   "testing"
+  "sync"
 )
 
 func TestGetValidCoinURL(t *testing.T) {
@@ -68,7 +68,7 @@ func TestGetInvalidGetCoinConvertURL(t *testing.T) {
     t.Error("Expected error: "+err.Error()+", got ", err)
   }
 
-  if err.Error() != expectedFiatError {
+  if err.Error() != expectedFiatError   {
     t.Error("Expected error: "+err.Error()+", got ", err.Error())
   }
 }
@@ -88,23 +88,22 @@ func TestValidContains(t *testing.T) {
 }
 
 func TestGetCoinRate(t *testing.T) {
-  var output string
+  result := make([]cmd.CryptoCurrency, 0)
+
+  var wg sync.WaitGroup
+  var mutex sync.Mutex
 
   coins := []string{"ION", "BCH"}
 
-  ch := make(chan string, 2)
+  wg.Add(2)
 
   for _, coin := range coins {
-    go cmd.GetCoinRate(coin, "INR", ch)
+    go cmd.GetCoinRate(coin, "EUR", &result, &wg, &mutex)
   }
 
-  for range coins {
-    output += <-ch
-  }
+  wg.Wait()
 
-  lines := strings.Split(output, "\n")
-
-  if len(lines) != 3 {
-    t.Error("Expected 3 lines, got ", len(lines))
+  if len(result) != 2 {
+    t.Error("Expected 2 objects, got ", len(result))
   }
 }

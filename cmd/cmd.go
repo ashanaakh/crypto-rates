@@ -58,7 +58,6 @@ type CryptoCurrency struct {
   Name   string
   Price  string     `json:"price"`
   Change CoinChange `json:"change"`
-  sync.Mutex
 }
 
 // Default fiat of third party REST JSON API
@@ -128,7 +127,7 @@ func PrettyShow(result []CryptoCurrency, fiat string) {
 }
 
 // GetCoinRate returns rate of specified coin
-func GetCoinRate(code, fiat string, result *[]CryptoCurrency, wg *sync.WaitGroup) {
+func GetCoinRate(code, fiat string, result *[]CryptoCurrency, wg *sync.WaitGroup, mutex *sync.Mutex) {
   url, _ := GetCoinURL(code)
 
   res, err := http.Get(url)
@@ -163,9 +162,16 @@ func GetCoinRate(code, fiat string, result *[]CryptoCurrency, wg *sync.WaitGroup
     coin.Price = fmt.Sprint(coinConvert.Result)
   }
 
+  mutex.Lock()
   *result = append(*result, *coin)
+  mutex.Unlock()
 
   wg.Done()
+}
+
+type logic struct {
+  wg sync.WaitGroup
+  mutex sync.Mutex
 }
 
 // Run executes algorithm
@@ -173,15 +179,15 @@ func Run() {
   fiat := flag.String("fiat", defaultFiat, "Fiat currency")
   flag.Parse()
 
-  //var output string
   result := make([]CryptoCurrency, 0)
 
   var wg sync.WaitGroup
+  var mutex sync.Mutex
 
   wg.Add(len(coins))
 
   for _, coin := range coins {
-    go GetCoinRate(coin, *fiat, &result, &wg)
+    go GetCoinRate(coin, *fiat, &result, &wg, &mutex)
   }
 
   wg.Wait()
