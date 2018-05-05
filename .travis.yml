@@ -1,30 +1,14 @@
 language: go
 
 go:
-- tip # The latest version of Go.
-- master
-
-matrix:
-  allow_failures:
-  - go: master
-  fast_finish: true
+- tip
 
 # Don't email me the results of the test runs.
 notifications:
   email: false
 
-# Do nothing. This is needed to prevent default install action "go get -t -v ./..." from happening here (we want it to happen inside script step).
-install: true
-
-before_install:
-- go get -v github.com/Masterminds/glide
-- cd $GOPATH/src/github.com/Masterminds/glide
-- git checkout v0.13.1 && go install && cd -
-- glide install
-
 before_script:
 - go get github.com/golang/lint/golint
-- glide up
 
 script:
 - go test -v -race ./...

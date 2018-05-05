@@ -1,4 +1,0 @@
-package: github.com/ashanaakh/crypto-rates
-import:
-- package: github.com/fatih/color
-  version: v1.6.0

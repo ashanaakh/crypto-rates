@@ -1,4 +1,4 @@
-BIN ?=	crates
+BIN ?=	crypto-rates
 PKG :=	$(shell basename $(CURDIR))
 
 default: run
