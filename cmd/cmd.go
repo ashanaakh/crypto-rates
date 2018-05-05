@@ -112,7 +112,7 @@ func PrettyShow(result []CryptoCurrency, fiat string) {
   })
 
   for _, coin := range result {
-    hour, err := strconv.ParseFloat(coin.Price, 64)
+    hour, err := strconv.ParseFloat(coin.Change.Hour, 64)
 
     handleError(err)
 
