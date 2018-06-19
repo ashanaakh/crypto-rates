@@ -4,7 +4,7 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
-// Package cmd implements methods for getting latest rates for crypto-currencies 9(coins)
+// Package cmd implements methods for getting latest rates for crypto-currencies.
 package cmd
 
 import (
@@ -12,16 +12,18 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
+
+	"github.com/fatih/color"
 )
 
-// Contains checks if item exist in array
+// Contains checks if item exist in array.
 func Contains(array []string, x string) bool {
 	for _, elem := range array {
 		if elem == x {
@@ -32,7 +34,7 @@ func Contains(array []string, x string) bool {
 	return false
 }
 
-// handleError handles error
+// handleError handles error.
 func handleError(err error) {
 	if err != nil {
 		fmt.Printf("%s", err)
@@ -40,41 +42,45 @@ func handleError(err error) {
 	}
 }
 
-// CoinConvert pareses json response from third party REST JSON API
+// CoinConvert pareses json response from third party REST JSON API.
 type CoinConvert struct {
 	Currency string      `json:"currency"`
 	Result   interface{} `json:"result"`
 	Coin     string      `json:"coin"`
 }
 
-// CoinChange parses json response from third party REST JSON API
+// CoinChange parses json response from third party REST JSON API.
 type CoinChange struct {
 	Hour string `json:"hour"`
 	Day  string `json:"day"`
 }
 
-// CryptoCurrency for third party REST JSON API
+// CryptoCurrency for third party REST JSON API.
 type CryptoCurrency struct {
 	Name   string
 	Price  string     `json:"price"`
 	Change CoinChange `json:"change"`
 }
 
-// Default fiat of third party REST JSON API
+// Default fiat of third party REST JSON API.
 var defaultFiat = "USD"
 
 // Description: List of support fiats.
-var fiats = []string{"USD", "EUR", "GBP", "AUD", "CAD",
+var fiats = []string{
+	"USD", "EUR", "GBP", "AUD", "CAD",
 	"CNY", "EGP", "HKD", "INR", "ILS",
 	"JPY", "MXP", "NZD", "PKR", "PHP",
-	"RUR", "SGD", "ZAR", "KRW", "THB"}
+	"RUR", "SGD", "ZAR", "KRW", "THB",
+}
 
 // Description: List of support coins.
 // Notes: Add any coin from list: https://chasing-coins.com/coins.
-var coins = []string{"BTC", "ETH", "XRP", "DASH", "ION",
-	"BCH", "LTC", "NEO", "ETC", "EOS"}
+var coins = []string{
+	"BTC", "ETH", "XRP", "DASH", "ION",
+	"BCH", "LTC", "NEO", "ETC", "EOS",
+}
 
-// GetCoinURL returns REST JSON API URL of specified currency rate
+// GetCoinURL returns REST JSON API URL of specified currency rate.
 func GetCoinURL(coin string) (string, error) {
 	if Contains(coins, coin) {
 		return "https://chasing-coins.com/api/v1/std/coin/" + coin, nil
@@ -84,7 +90,7 @@ func GetCoinURL(coin string) (string, error) {
 }
 
 // GetCoinConvertURL returns REST JSON API URL
-// of convertation specified coin into fiat
+// of convertation specified coin into fiat.
 func GetCoinConvertURL(coin, fiat string) (string, error) {
 	coinOk := Contains(coins, coin)
 	fiatOk := Contains(fiats, fiat)
@@ -98,7 +104,7 @@ func GetCoinConvertURL(coin, fiat string) (string, error) {
 	return "", errors.New("invalid fiat")
 }
 
-// PrettyShow prints rates coins color, depending on their rates
+// PrettyShow prints rates coins color, depending on their rates.
 func PrettyShow(result []CryptoCurrency, fiat string) {
 	color.Cyan("Fiat: " + fiat)
 
@@ -126,7 +132,7 @@ func PrettyShow(result []CryptoCurrency, fiat string) {
 	}
 }
 
-// GetCoinRate returns rate of specified coin
+// GetCoinRate returns rate of specified coin.
 func GetCoinRate(code, fiat string, result *[]CryptoCurrency, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	url, _ := GetCoinURL(code)
 
@@ -174,7 +180,7 @@ type logic struct {
 	mutex sync.Mutex
 }
 
-// Run executes algorithm
+// Run executes algorithm.
 func Run() {
 	fiat := flag.String("fiat", defaultFiat, "Fiat currency")
 	flag.Parse()
@@ -187,7 +193,7 @@ func Run() {
 	wg.Add(len(coins))
 
 	for _, coin := range coins {
-		go GetCoinRate(coin, *fiat, &result, &wg, &mutex)
+		go GetCoinRate(coin, strings.ToUpper(*fiat), &result, &wg, &mutex)
 	}
 
 	wg.Wait()
