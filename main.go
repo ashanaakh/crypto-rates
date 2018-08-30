@@ -6,7 +6,7 @@
 
 package main
 
-import "github.com/ashanaakh/crypto-rates/cmd"
+import "github.com/shal/crypto-rates/cmd"
 
 func main() {
 	cmd.Run()

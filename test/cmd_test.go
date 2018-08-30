@@ -7,7 +7,7 @@
 package main
 
 import (
-	"github.com/ashanaakh/crypto-rates/cmd"
+	"github.com/shal/crypto-rates/cmd"
 	"sync"
 	"testing"
 )

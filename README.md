@@ -1,10 +1,10 @@
-[travis]: https://travis-ci.org/ashanaakh/crypto-rates
-[goreport]: https://goreportcard.com/report/github.com/ashanaakh/crypto-rates
+[travis]: https://travis-ci.org/shal/crypto-rates
+[goreport]: https://goreportcard.com/report/github.com/shal/crypto-rates
 [license]: ./LICENSE
 
 # Crypto rates
-[![Build Status](https://travis-ci.org/ashanaakh/crypto-rates.svg?branch=master)][travis]
-[![Go Report Card](https://goreportcard.com/badge/github.com/ashanaakh/cryptio-api)][goreport]
+[![Build Status](https://travis-ci.org/shal/crypto-rates.svg?branch=master)][travis]
+[![Go Report Card](https://goreportcard.com/badge/github.com/shal/cryptio-api)][goreport]
 
 > Tool for getting coins rates
 
@@ -13,7 +13,7 @@
 Install using go dep
 
 ```
-$ go get github.com/ashanaakh/crypto-rates
+$ go get github.com/shal/crypto-rates
 ```
 
 ## Usage
@@ -53,7 +53,7 @@ $ crypto-rates -fiat=INR
 Download source code
 
 ```
-$ go get github.com/ashanaakh/crypto-rates
+$ go get github.com/shal/crypto-rates
 ```
 
 Install dependencies
