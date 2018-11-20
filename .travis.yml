@@ -8,7 +8,7 @@ notifications:
   email: false
 
 before_script:
-- go get github.com/golang/lint/golint
+- go get -u golang.org/x/lint/golint
 
 script:
 - go test -v -race ./...
