@@ -4,7 +4,7 @@
 
 # Crypto rates
 [![Build Status](https://travis-ci.org/shal/crypto-rates.svg?branch=master)][travis]
-[![Go Report Card](https://goreportcard.com/badge/github.com/shal/cryptio-api)][goreport]
+[![Go Report Card](https://goreportcard.com/badge/github.com/shal/crypto-rates)][goreport]
 
 > Tool for getting coins rates
 
